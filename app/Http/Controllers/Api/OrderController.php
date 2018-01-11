@@ -9,18 +9,95 @@ use App\Models\Goods;
 use App\Models\Cates;
 use App\Models\CateGoods;
 use App\Models\AddGoods;
+use App\Models\Alc;
+use Excel;
 class OrderController extends Controller
 {
     /**
 	 * 订单列表
     **/
-    public function index(){
-    	$result = Order::take(50)->get();
+    public function index(Request $request){
+        //获取alc可显示字段
+        $alc = Alc::where('user_id', $request->user()->id)->first();
+        $select = json_decode($alc->order);
+        array_push($select, 'id','created_at');
+        if($alc->status == 5){
+            $where = [];
+        }else{
+            $where = ['user_id' => $request->user()->id];
+        }
+        
+
+        if($request->get('goods_id')){
+            $result = Order::where('id',$request->get('goods_id'))->select($select)->get();
+        }
+
+        if($request->get('status')){
+            switch ($request->get('status')) {
+                case '1':
+                    //未发货的
+                    $result = Order::orderBy('express_status','asc')->select($select)->take(30)->get();
+                    break;
+                default:
+                    $result = Order::orderBy('express_status','desc')->select($select)->take(30)->get();
+                    break;
+            }
+        }
+
+        if($request->get('take')){
+            switch ($request->get('take')) {
+                case '1':
+                    //只看已签收
+                    $result = Order::latest()->where('express_status',2)->select($select)->take(30)->get();
+                    break;
+                case '2':
+                    //只看已发货
+                    $result = Order::latest()->where('express_status',1)->select($select)->take(30)->get();
+                    break;
+                case '3':
+                    //只看未签收
+                    $result = Order::latest()->where('express_status',0)->select($select)->take(30)->get();
+                    break;
+                case '4':
+                    //只看微信
+                    $result = Order::latest()->where('pay_method',1)->select($select)->take(30)->get();
+                    break;
+                case '5':
+                    //只看支付宝
+                    $result = Order::latest()->where('pay_method',2)->select($select)->take(30)->get();
+                    break;
+                default:
+                    //只看复购订单
+                    $result = $this->queryRepOrder($request,$select);
+                    break;
+            }
+        }
+        if(!$request->get('take') && !$request->get('status') && !$request->get('goods_id')){
+            $result = Order::latest()->select($select)->take(30)->get();
+        }
    		return response()->json([
    			"status" => 200,
    			"result" => $result,
    			"message" => "订单列表获取成功"
    		]);
+    }
+
+    /**
+     * 是否复购检测
+    **/
+    public function isRepOrder($phone){
+        $count = Order::where('phone',$phone)->count();
+        if($count >= 1){
+            Order::where('phone',$phone)->update(['rep_count' => $count]);
+        }
+    }
+
+    /**
+     * 获取复购订单
+    **/
+    public function queryRepOrder(Request $request,$select){
+        $user_id = $request->user()->id;
+        return Order::where('user_id',$user_id)->where('rep_count','>=',1)->select($select)->get();
     }
 
     /**
@@ -69,9 +146,9 @@ class OrderController extends Controller
             $addGoods = $this->subGoodsStock($request,$handleData);
             $fill['add_goods'] = implode(",",$addGoods);
             $order = Order::create($fill);
-
             AddGoods::whereIn('id',$addGoods)->update(['order_id' => $order->id]);
         }
+        $this->isRepOrder($fill['phone']);
     	return response()->json([
    			"status" => 200,
    			"result" => $order,
@@ -103,7 +180,6 @@ class OrderController extends Controller
             })->toArray();
             return $res;
         }
-        
         return response()->json([
             "status" => 200,
             "result" => $res,
@@ -142,4 +218,27 @@ class OrderController extends Controller
         }
         return $res;
     }
+
+    /**
+     * 
+    **/
+    public function excel(Request $request){
+
+        $start = $request->get('start');
+        $end = $request->get('end');
+        $count = Order::where('created_at','>=',$start)->where('created_at','<=',$end)->count();
+        if($count >= 1){
+            $orderData = Order::where('created_at','>=',$start)->where('created_at','<=',$end)->select([
+                'id','order_name','name','address','phone','wechat','total_price','express','number','source','remark','created_at'
+            ])->get()->toArray();
+            array_unshift($orderData,['订单号','订单名称','收货人','收货地址','收货人电话','收货人微信号','订单总价','快递公司','快递单号','出单来源','备注','订单时间']);
+            $file_name = $request->user()->username."-".$start."至".$end;
+            Excel::create($file_name,function($excel) use ($orderData){
+                $excel->sheet('score', function($sheet) use ($orderData){
+                    $sheet->rows($orderData);
+                });
+            })->export('xls');
+        }
+    }
+
 }

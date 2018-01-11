@@ -50,19 +50,29 @@
 		      	</template>
 		    </el-table-column>
 		    <el-table-column
-		      prop="user.username"
-		      label="直接上级">
+		    	width="100"
+		      	prop="user.username"
+		      	label="直接上级">
 		    </el-table-column>
 		    <el-table-column
 		      prop="status"
-		      label="标签"
-		      width="100"
+		      label="状态"
 		      :filter-method="filterTag"
 		      filter-placement="bottom-end">
 		      	<template slot-scope="scope">
 		        	<el-tag
 			          :type="scope.row.tag === '1' ? 'primary' : 'success'"
 			          close-transition>{{scope.row.tag === '1' ? '未使用' : '使用中'}}</el-tag>
+		      	</template>
+		    </el-table-column>
+		    <el-table-column label="操作">
+		      	<template slot-scope="scope">
+		      		<el-row :gutter="20">
+              			<el-col :span="10">
+					        <el-button type="danger" size="mini" icon="plus" @click="editAlc(scope.row)">编辑权限</el-button> 
+					        <el-button type="danger" size="mini" icon="delete" @click="remove(scope.row)">删除用户</el-button>
+			        	</el-col>
+            		</el-row>
 		      	</template>
 		    </el-table-column>
 		</el-table>
@@ -125,8 +135,14 @@
 	    add(){
 	    	this.$router.push('/user/add');
 	    },
-	    remove(){
+	    remove(row){
+	    	axios.post('/api/user/del',{id:row.id})
+	    		then(res => {
 
+	    		})
+	    },
+	    editAlc(row){
+	    	this.$router.push('/user/alc/' + row.id );
 	    }
     }
   }

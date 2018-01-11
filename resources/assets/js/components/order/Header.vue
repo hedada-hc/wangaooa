@@ -29,10 +29,14 @@
 
 <script type="text/javascript">
 	export default {
+		props:['user'],
 		data(){
 			return {
-				
+				auth:{alc:{}}
 			}
+		},
+		created(){
+			this.auth = JSON.parse(this.user);
 		},
 		methods:{
 			handleOpen(key, keyPath) {

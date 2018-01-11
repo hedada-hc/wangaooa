@@ -14,8 +14,8 @@
               :router="true"
               active-text-color="#f3f900">
               <el-menu-item index="/order">我的办公室</el-menu-item>
-              <el-menu-item index="/changku">仓库管理</el-menu-item>
-              <el-menu-item index="/user">员工管理</el-menu-item>
+              <el-menu-item v-if="auth.alc.cates > 0" index="/changku">仓库管理</el-menu-item>
+              <el-menu-item v-if="auth.alc.user > 0" index="/user">员工管理</el-menu-item>
               <el-menu-item index="/count">数据分析</el-menu-item>
             </el-menu>
             <div class="logout">
@@ -23,7 +23,7 @@
             </div>
         </el-header>
         <el-container>
-            <router-view class="main_con"></router-view>
+            <router-view :user="user" class="main_con"></router-view>
         </el-container>
         
     </el-container>
@@ -36,7 +36,7 @@
             return {
                 activeIndex: '1',
                 activeIndex2: '1',
-                auth:{}
+                auth:{alc:{}}
             }
         },
         mounted() {

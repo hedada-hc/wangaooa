@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Models\Alc;
+use App\User;
+use Auth;
 class HomeController extends Controller
 {
     /**
@@ -23,6 +25,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $user = User::where('id',Auth::user()->id)->with('alc')->first();
+        return view('home')->with('user',$user);
     }
 }

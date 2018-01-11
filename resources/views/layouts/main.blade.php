@@ -8,7 +8,7 @@
 </head>
 <body>
 	<div id="app">
-		<App user="{{Auth::user()}}"></App>
+		<App user="{{$user}}"></App>
 	</div>
 	<script type="text/javascript" src="{{asset('js/app.js')}}"></script>
 </body>

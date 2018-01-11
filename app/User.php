@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
+use App\Models\Alc;
 class User extends Authenticatable
 {
     use Notifiable;
@@ -29,5 +29,9 @@ class User extends Authenticatable
 
     public function user(){
         return $this->belongsTo(User::class,'super_id','id');
+    }
+
+    public function alc(){
+        return $this->belongsTo(Alc::class,'alc_id','id');
     }
 }

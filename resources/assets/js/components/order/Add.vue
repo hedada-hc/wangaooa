@@ -253,7 +253,8 @@
 	            		data:this.submitData
 	            	})
 	            		.then(res => {
-
+	            			this.$message({message:"订单提交成功",type:"success"})
+	            			this.$router.push("/order/index");
 	            		})
 	            		.catch(error => {
 

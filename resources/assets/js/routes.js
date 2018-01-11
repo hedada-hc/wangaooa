@@ -31,6 +31,7 @@ const routes = [
 			{path:'/user',component:require('./components/user/Index')},
 			{path:'/user/index',component:require('./components/user/Index')},
 			{path:'/user/add',component:require('./components/user/Add')},
+			{path:'/user/alc/:id',component:require('./components/user/Alc')},
 		]
 	},
 	{

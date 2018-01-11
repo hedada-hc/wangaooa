@@ -10,13 +10,17 @@
 				text-color="#333333"
 				:router="true"
 				active-text-color="#000000">
-	            <el-menu-item index="/user/index">
+	            <el-menu-item v-if="auth.alc.user >= 1" index="/user/index">
 	                <i class="el-icon-menu"></i>
 	                <span slot="title">员工列表</span>
 	            </el-menu-item>
-	            <el-menu-item index="/user/add">
+	            <el-menu-item v-if="auth.alc.user >= 2" index="/user/add">
 	                <i class="el-icon-circle-check"></i>
 	                <span slot="title">新增员工</span>
+	            </el-menu-item>
+	            <el-menu-item v-if="auth.alc.status == 5" index="/user/alc">
+	                <i class="el-icon-circle-check"></i>
+	                <span slot="title">权限管理</span>
 	            </el-menu-item>
             </el-menu>
         </el-menu>
@@ -29,10 +33,14 @@
 
 <script type="text/javascript">
 	export default {
+		props:['user'],
 		data(){
 			return {
-				
+				auth:{alc:{}}
 			}
+		},
+		created(){
+			this.auth = JSON.parse(this.user);
 		},
 		methods:{
 			handleOpen(key, keyPath) {
