@@ -17,6 +17,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::group(['namespace' => 'Api','middleware' => ['checkalc','auth']],function(){
 	//用户管理
 	Route::get('/api/user','AlcController@index');
+	Route::post('/api/upload','AlcController@upload');
 	Route::post('/api/user/add','AlcController@addUser');
 	Route::post('/api/user/del','AlcController@delUser');
 	Route::get('/api/user/alc/list','AlcController@queryAlcList');

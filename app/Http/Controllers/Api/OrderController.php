@@ -27,6 +27,11 @@ class OrderController extends Controller
             $where = ['user_id' => $request->user()->id];
         }
         
+        //分页数据
+        $pageSize = 30;
+        $page = $request->get('page') <= 1 ? 0 : (abs($request->get('page')) * $pageSize) - $pageSize;
+
+
 
         if($request->get('goods_id')){
             $result = Order::where('id',$request->get('goods_id'))->select($select)->get();
@@ -36,10 +41,10 @@ class OrderController extends Controller
             switch ($request->get('status')) {
                 case '1':
                     //未发货的
-                    $result = Order::orderBy('express_status','asc')->select($select)->take(30)->get();
+                    $result = Order::where($where)->orderBy('express_status','asc')->select($select)->offset($page)->limit($pageSize)->get();
                     break;
                 default:
-                    $result = Order::orderBy('express_status','desc')->select($select)->take(30)->get();
+                    $result = Order::where($where)->orderBy('express_status','desc')->select($select)->offset($page)->limit($pageSize)->get();
                     break;
             }
         }
@@ -48,23 +53,33 @@ class OrderController extends Controller
             switch ($request->get('take')) {
                 case '1':
                     //只看已签收
-                    $result = Order::latest()->where('express_status',2)->select($select)->take(30)->get();
+                    array_push($where,["express_status" => 2]);
+                    $result = Order::latest()->where($where)->select($select)->offset($page)->limit($pageSize)->get();
+                    $count = Order::where($where)->count();
                     break;
                 case '2':
                     //只看已发货
-                    $result = Order::latest()->where('express_status',1)->select($select)->take(30)->get();
+                    array_push($where,["express_status" => 1]);
+                    $result = Order::latest()->where($where)->select($select)->offset($page)->limit($pageSize)->get();
+                    $count = Order::where($where)->count();
                     break;
                 case '3':
                     //只看未签收
-                    $result = Order::latest()->where('express_status',0)->select($select)->take(30)->get();
+                    array_push($where,["express_status" => 0]);
+                    $result = Order::latest()->where($where)->select($select)->offset($page)->limit($pageSize)->get();
+                    $count = Order::where($where)->count();
                     break;
                 case '4':
                     //只看微信
-                    $result = Order::latest()->where('pay_method',1)->select($select)->take(30)->get();
+                    array_push($where,["pay_method" => 1]);
+                    $result = Order::latest()->where($where)->select($select)->offset($page)->limit($pageSize)->get();
+                    $count = Order::where($where)->count();
                     break;
                 case '5':
                     //只看支付宝
-                    $result = Order::latest()->where('pay_method',2)->select($select)->take(30)->get();
+                    array_push($where,["pay_method" => 2]);
+                    $result = Order::latest()->where($where)->select($select)->offset($page)->limit($pageSize)->get();
+                    $count = Order::where($where)->count();
                     break;
                 default:
                     //只看复购订单
@@ -73,11 +88,13 @@ class OrderController extends Controller
             }
         }
         if(!$request->get('take') && !$request->get('status') && !$request->get('goods_id')){
-            $result = Order::latest()->select($select)->take(30)->get();
+            $result = Order::latest()->where($where)->select($select)->offset($page)->limit($pageSize)->get();
+            $count = Order::where($where)->count();
         }
    		return response()->json([
    			"status" => 200,
    			"result" => $result,
+            "total" => $count,
    			"message" => "订单列表获取成功"
    		]);
     }

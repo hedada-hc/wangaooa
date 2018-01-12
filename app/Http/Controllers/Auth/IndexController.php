@@ -9,7 +9,10 @@ use Auth;
 class IndexController extends Controller
 {
    	public function index(){
-   		$user = User::where('id',Auth::user()->id)->with('alc')->first();
-   		return view('layouts.main')->with('user',$user);
+   		if(Auth::user()){
+   			$user = User::where('id',Auth::user()->id)->with('alc')->first();
+   			return view('layouts.main')->with('user',$user);
+   		}
+   		return redirect('/login');
    	}
 }

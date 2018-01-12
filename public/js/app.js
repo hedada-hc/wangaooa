@@ -107092,6 +107092,198 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -107124,6 +107316,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 					}
 				}]
 			},
+			currentPage: 1,
+			totalPage: 0,
 			selectDate: '',
 			form: { goods_id: "", status: "", take: "" },
 			express: { express: "", number: "", express_status: 0 },
@@ -107155,10 +107349,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			var row = _ref.row,
 			    rowIndex = _ref.rowIndex;
 
-			if (rowIndex === 1) {
-				return 'warning-row';
-			} else if (rowIndex === 2) {
+			if (row.express_status == 2) {
 				return 'success-row';
+			} else if (row.express_status === 1) {
+				return 'warning-row';
 			}
 			return '';
 		},
@@ -107169,7 +107363,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		getList: function getList() {
 			var _this2 = this;
 
-			var params = {};
+			var pages = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+			this.currentPage = pages >= 1 ? pages : this.currentPage;
+			var params = {
+				page: this.currentPage
+			};
 			if (this.form.goods_id != "") {
 				params.goods_id = this.form.goods_id;
 			}
@@ -107180,6 +107379,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				params.take = this.form.take;
 			}
 			axios.get('/api/order', { params: params }).then(function (res) {
+				_this2.totalPage = res.data.total;
 				_this2.orderList = res.data.result;
 			}).catch(function (err) {});
 		},
@@ -107209,6 +107409,30 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			} else {
 				this.$message.error("请选择导出时间");
 			}
+		},
+		getSummaries: function getSummaries(param) {
+			var columns = param.columns,
+			    data = param.data;
+
+			var sums = [];
+			var price = 0;
+			var total_price = 0;
+			for (var index in data) {
+
+				price += parseInt(data[index].price);
+				total_price += parseInt(data[index].total_price);
+			}
+			sums.push('销售统计');
+			sums.push('应收总额:' + total_price);
+			sums.push('已付定金:' + price);
+			return sums;
+		},
+		handleSizeChange: function handleSizeChange(val) {
+			console.log('\u6BCF\u9875 ' + val + ' \u6761');
+		},
+		handleCurrentChange: function handleCurrentChange(val) {
+			console.log('\u5F53\u524D\u9875: ' + val);
+			this.getList(val);
 		}
 	}
 });
@@ -107710,12 +107934,732 @@ var render = function() {
         {
           staticStyle: { width: "100%" },
           attrs: {
+            "summary-method": _vm.getSummaries,
+            "show-summary": "",
             data: _vm.orderList,
             "row-class-name": _vm.tableRowClassName,
             "show-overflow-tooltip": true
           }
         },
-        [_c("el-table-column", { attrs: { label: "订单号", width: "60" } })],
+        [
+          _c("el-table-column", {
+            attrs: { label: "订单号", width: "80" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                      _vm._v(_vm._s(scope.row.id ? scope.row.id : "无"))
+                    ])
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "收货电话", width: "120" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                      _vm._v(_vm._s(scope.row.phone ? scope.row.phone : "无"))
+                    ])
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "收货地址", width: "220" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                      _vm._v(
+                        _vm._s(scope.row.address ? scope.row.address : "无")
+                      )
+                    ])
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "收货姓名", width: "100" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                      _vm._v(_vm._s(scope.row.name ? scope.row.name : "无"))
+                    ])
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "微信号", sortable: "", width: "130" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                      _vm._v(_vm._s(scope.row.wechat ? scope.row.wechat : "无"))
+                    ])
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "价格", sortable: "", width: "100" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                      _vm._v(
+                        _vm._s(
+                          scope.row.total_price ? scope.row.total_price : "无"
+                        )
+                      )
+                    ])
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "支付方式", width: "100" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    scope.row.pay_method == 1
+                      ? _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                          _vm._v("微信")
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    scope.row.pay_method == 2
+                      ? _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                          _vm._v("支付宝")
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    scope.row.pay_method == 3
+                      ? _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                          _vm._v("工行")
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    scope.row.pay_method == 4
+                      ? _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                          _vm._v("农行")
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    scope.row.pay_method == 5
+                      ? _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                          _vm._v("建行")
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    scope.row.pay_method == 6
+                      ? _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                          _vm._v("中行")
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    scope.row.pay_method == 7
+                      ? _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                          _vm._v("邮政")
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    !scope.row.pay_method
+                      ? _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                          _vm._v("无")
+                        ])
+                      : _vm._e()
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "出单来源", width: "100" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                      _vm._v(_vm._s(scope.row.source ? scope.row.source : "无"))
+                    ])
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "订单备注", width: "150" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                      _vm._v(_vm._s(scope.row.remark ? scope.row.remark : "无"))
+                    ])
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "快递查询", width: "100" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c(
+                      "el-popover",
+                      {
+                        ref: "popover4",
+                        attrs: {
+                          placement: "right",
+                          width: "400",
+                          trigger: "click"
+                        }
+                      },
+                      [
+                        _c(
+                          "el-card",
+                          { staticClass: "box-card" },
+                          [
+                            _c(
+                              "div",
+                              {
+                                staticClass: "clearfix",
+                                attrs: { slot: "header" },
+                                slot: "header"
+                              },
+                              [
+                                _c(
+                                  "el-row",
+                                  { attrs: { gutter: 30 } },
+                                  [
+                                    _c(
+                                      "el-col",
+                                      {
+                                        staticStyle: {
+                                          "padding-left": "10px",
+                                          "padding-right": "0px",
+                                          "padding-bottom": "6px"
+                                        },
+                                        attrs: { span: 15 }
+                                      },
+                                      [
+                                        _c("span", [
+                                          _vm._v(
+                                            _vm._s(
+                                              scope.row.express
+                                                ? scope.row.express
+                                                : "无"
+                                            ) +
+                                              "：" +
+                                              _vm._s(
+                                                scope.row.number
+                                                  ? scope.row.number
+                                                  : "无"
+                                              )
+                                          )
+                                        ])
+                                      ]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "el-col",
+                                      {
+                                        staticStyle: {
+                                          float: "left",
+                                          "padding-left": "10px",
+                                          "padding-right": "0px"
+                                        },
+                                        attrs: { span: 13 }
+                                      },
+                                      [
+                                        scope.row.express_status <= 1
+                                          ? _c("el-switch", {
+                                              staticStyle: { float: "left" },
+                                              attrs: {
+                                                "active-text": "已签收",
+                                                "inactive-text": "未签收"
+                                              },
+                                              on: {
+                                                change: function($event) {
+                                                  _vm.submitExpress(
+                                                    scope.row.id
+                                                  )
+                                                }
+                                              },
+                                              model: {
+                                                value:
+                                                  _vm.express.express_status,
+                                                callback: function($$v) {
+                                                  _vm.$set(
+                                                    _vm.express,
+                                                    "express_status",
+                                                    $$v
+                                                  )
+                                                },
+                                                expression:
+                                                  "express.express_status"
+                                              }
+                                            })
+                                          : _vm._e()
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _vm._l(4, function(o) {
+                              return _c(
+                                "div",
+                                { key: o, staticClass: "text item" },
+                                [
+                                  _vm._v(
+                                    "\n\t\t\t\t\t    " +
+                                      _vm._s(
+                                        "下一站：湖北省武汉市第 " + o + "栋"
+                                      ) +
+                                      "\n\t\t\t\t\t  "
+                                  )
+                                ]
+                              )
+                            })
+                          ],
+                          2
+                        )
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    scope.row.number > 0
+                      ? _c(
+                          "el-button",
+                          {
+                            directives: [
+                              {
+                                name: "popover",
+                                rawName: "v-popover:popover4",
+                                arg: "popover4"
+                              }
+                            ],
+                            attrs: { size: "mini", type: "success" }
+                          },
+                          [_vm._v("查询快递")]
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _c(
+                      "el-popover",
+                      {
+                        ref: "expressinfo",
+                        attrs: {
+                          placement: "right",
+                          width: "400",
+                          trigger: "click"
+                        }
+                      },
+                      [
+                        _c(
+                          "el-form",
+                          { attrs: { model: _vm.form } },
+                          [
+                            _c(
+                              "el-form-item",
+                              {
+                                attrs: {
+                                  label: "快递单号",
+                                  "label-width": _vm.formLabelWidth
+                                }
+                              },
+                              [
+                                _c(
+                                  "el-row",
+                                  { attrs: { gutter: 20 } },
+                                  [
+                                    _c(
+                                      "el-col",
+                                      { attrs: { span: 20 } },
+                                      [
+                                        _c("el-input", {
+                                          attrs: { "auto-complete": "off" },
+                                          model: {
+                                            value: _vm.express.number,
+                                            callback: function($$v) {
+                                              _vm.$set(
+                                                _vm.express,
+                                                "number",
+                                                $$v
+                                              )
+                                            },
+                                            expression: "express.number"
+                                          }
+                                        })
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "el-form-item",
+                              {
+                                attrs: {
+                                  label: "快递公司",
+                                  "label-width": _vm.formLabelWidth
+                                }
+                              },
+                              [
+                                _c(
+                                  "el-row",
+                                  { attrs: { gutter: 20 } },
+                                  [
+                                    _c(
+                                      "el-col",
+                                      { attrs: { span: 20 } },
+                                      [
+                                        _c(
+                                          "el-select",
+                                          {
+                                            attrs: {
+                                              placeholder: "请选择快递公司"
+                                            },
+                                            model: {
+                                              value: _vm.express.express,
+                                              callback: function($$v) {
+                                                _vm.$set(
+                                                  _vm.express,
+                                                  "express",
+                                                  $$v
+                                                )
+                                              },
+                                              expression: "express.express"
+                                            }
+                                          },
+                                          [
+                                            _c("el-option", {
+                                              attrs: {
+                                                label: "圆通快递",
+                                                value: "圆通快递"
+                                              }
+                                            }),
+                                            _vm._v(" "),
+                                            _c("el-option", {
+                                              attrs: {
+                                                label: "顺丰快递",
+                                                value: "顺丰快递"
+                                              }
+                                            }),
+                                            _vm._v(" "),
+                                            _c("el-option", {
+                                              attrs: {
+                                                label: "中国邮政",
+                                                value: "中国邮政"
+                                              }
+                                            }),
+                                            _vm._v(" "),
+                                            _c("el-option", {
+                                              attrs: {
+                                                label: "中通快递",
+                                                value: "中通快递"
+                                              }
+                                            }),
+                                            _vm._v(" "),
+                                            _c("el-option", {
+                                              attrs: {
+                                                label: "申通快递",
+                                                value: "申通快递"
+                                              }
+                                            }),
+                                            _vm._v(" "),
+                                            _c("el-option", {
+                                              attrs: {
+                                                label: "天天快递",
+                                                value: "天天快递"
+                                              }
+                                            })
+                                          ],
+                                          1
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "el-row",
+                              { attrs: { gutter: 20 } },
+                              [
+                                _c(
+                                  "el-col",
+                                  { attrs: { span: 10, offset: 8 } },
+                                  [
+                                    _c(
+                                      "el-button",
+                                      {
+                                        attrs: { size: "small" },
+                                        on: {
+                                          click: function($event) {
+                                            _vm.dialogFormVisible = false
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("取 消")]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "el-button",
+                                      {
+                                        attrs: {
+                                          size: "small",
+                                          type: "primary"
+                                        },
+                                        on: {
+                                          click: function($event) {
+                                            _vm.submitExpress(scope.row.id)
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("发 货")]
+                                    )
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        )
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    scope.row.number <= 0
+                      ? _c(
+                          "el-button",
+                          {
+                            directives: [
+                              {
+                                name: "popover",
+                                rawName: "v-popover:expressinfo",
+                                arg: "expressinfo"
+                              }
+                            ],
+                            attrs: { type: "danger", size: "mini" }
+                          },
+                          [_vm._v("填写单号")]
+                        )
+                      : _vm._e()
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "订单状态", width: "100" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c(
+                      "el-popover",
+                      { attrs: { trigger: "hover", placement: "top" } },
+                      [
+                        _c("p", [_vm._v("姓名: " + _vm._s(scope.row.name))]),
+                        _vm._v(" "),
+                        _c("p", [_vm._v("住址: " + _vm._s(scope.row.address))]),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          {
+                            staticClass: "name-wrapper",
+                            attrs: { slot: "reference" },
+                            slot: "reference"
+                          },
+                          [
+                            scope.row.express_status == 0
+                              ? _c(
+                                  "el-tag",
+                                  {
+                                    attrs: { size: "medium", type: "primary" }
+                                  },
+                                  [_vm._v("未发货")]
+                                )
+                              : _vm._e(),
+                            _vm._v(" "),
+                            scope.row.express_status == 1
+                              ? _c(
+                                  "el-tag",
+                                  {
+                                    attrs: { size: "medium", type: "warning" }
+                                  },
+                                  [_vm._v("已收货")]
+                                )
+                              : _vm._e(),
+                            _vm._v(" "),
+                            scope.row.express_status == 2
+                              ? _c(
+                                  "el-tag",
+                                  {
+                                    attrs: { size: "medium", type: "success" }
+                                  },
+                                  [_vm._v("签收了")]
+                                )
+                              : _vm._e()
+                          ],
+                          1
+                        )
+                      ]
+                    )
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "下单日期", width: "180" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c("i", { staticClass: "el-icon-time" }),
+                    _vm._v(" "),
+                    _c("span", { staticStyle: { "margin-left": "10px" } }, [
+                      _vm._v(
+                        _vm._s(
+                          scope.row.created_at ? scope.row.created_at : "无"
+                        )
+                      )
+                    ])
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
+            attrs: { label: "操作" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c(
+                      "el-button",
+                      {
+                        attrs: { size: "mini" },
+                        on: {
+                          click: function($event) {
+                            _vm.handleEdit(scope.$index, scope.row)
+                          }
+                        }
+                      },
+                      [_vm._v("编辑")]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "el-button",
+                      {
+                        attrs: { size: "mini", type: "danger" },
+                        on: {
+                          click: function($event) {
+                            _vm.handleDelete(scope.$index, scope.row)
+                          }
+                        }
+                      },
+                      [_vm._v("删除")]
+                    )
+                  ]
+                }
+              }
+            ])
+          })
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "el-row",
+        { attrs: { gutter: 20 } },
+        [
+          _c("el-col", { attrs: { span: 12, offset: 8 } }, [
+            _c(
+              "div",
+              { staticClass: "grid-content bg-purple" },
+              [
+                _c("el-pagination", {
+                  attrs: {
+                    "current-page": _vm.currentPage,
+                    "page-size": 30,
+                    layout: "total, prev, pager, next",
+                    total: _vm.totalPage
+                  },
+                  on: {
+                    "size-change": _vm.handleSizeChange,
+                    "current-change": _vm.handleCurrentChange,
+                    "update:currentPage": function($event) {
+                      _vm.currentPage = $event
+                    }
+                  }
+                })
+              ],
+              1
+            )
+          ])
+        ],
         1
       )
     ],
@@ -111334,10 +112278,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	props: ['user'],
@@ -111407,16 +112347,6 @@ var render = function() {
                       _vm._v("新增员工")
                     ])
                   ])
-                : _vm._e(),
-              _vm._v(" "),
-              _vm.auth.alc.status == 5
-                ? _c("el-menu-item", { attrs: { index: "/user/alc" } }, [
-                    _c("i", { staticClass: "el-icon-circle-check" }),
-                    _vm._v(" "),
-                    _c("span", { attrs: { slot: "title" }, slot: "title" }, [
-                      _vm._v("权限管理")
-                    ])
-                  ])
                 : _vm._e()
             ],
             1
@@ -111425,7 +112355,11 @@ var render = function() {
         1
       ),
       _vm._v(" "),
-      _c("el-main", [_c("router-view", { staticClass: "con" })], 1)
+      _c(
+        "el-main",
+        [_c("router-view", { staticClass: "con", attrs: { user: _vm.user } })],
+        1
+      )
     ],
     1
   )
@@ -111567,72 +112501,78 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-		data: function data() {
-				return {
-						user_id: '',
-						tableData: [{
-								date: '2016-05-02',
-								name: '王小虎',
-								address: '上海市普陀区金沙江路 1518 弄',
-								tag: '家'
-						}, {
-								date: '2016-05-04',
-								name: '王小虎',
-								address: '上海市普陀区金沙江路 1517 弄',
-								tag: '公司'
-						}, {
-								date: '2016-05-01',
-								name: '王小虎',
-								address: '上海市普陀区金沙江路 1519 弄',
-								tag: '家'
-						}, {
-								date: '2016-05-03',
-								name: '王小虎',
-								address: '上海市普陀区金沙江路 1516 弄',
-								tag: '公司'
-						}],
-						userData: []
-				};
-		},
-		created: function created() {
-				this.getUser();
-		},
+	props: ['user'],
+	data: function data() {
+		return {
+			user_id: '',
+			userData: [],
+			auth: { alc: {} }
+		};
+	},
+	created: function created() {
+		this.auth = JSON.parse(this.user);
+		this.getUser();
+	},
 
-		methods: {
-				formatter: function formatter(row, column) {
-						return row.address;
-				},
-				filterTag: function filterTag(value, row) {
-						return row.tag === value;
-				},
-				getUser: function getUser() {
-						var _this = this;
+	methods: {
+		formatter: function formatter(row, column) {
+			return row.address;
+		},
+		filterTag: function filterTag(value, row) {
+			return row.tag === value;
+		},
+		getUser: function getUser() {
+			var _this = this;
 
-						axios.get('/api/user').then(function (response) {
-								if (response.data.status == 200) {
-										_this.userData = response.data.result;
-								} else {
-										_this.$notify({
-												title: '警告',
-												message: '用户数据获取失败',
-												type: 'warning'
-										});
-								}
-						});
-				},
-				add: function add() {
-						this.$router.push('/user/add');
-				},
-				remove: function remove(row) {
-						axios.post('/api/user/del', { id: row.id });
-						then(function (res) {});
-				},
-				editAlc: function editAlc(row) {
-						this.$router.push('/user/alc/' + row.id);
+			axios.get('/api/user').then(function (response) {
+				if (response.data.status == 200) {
+					_this.userData = response.data.result;
+				} else {
+					_this.$notify({
+						title: '警告',
+						message: '用户数据获取失败',
+						type: 'warning'
+					});
 				}
+			});
+		},
+		add: function add() {
+			this.$router.push('/user/add');
+		},
+		remove: function remove(row) {
+			var _this2 = this;
+
+			this.$confirm('此操作将永久删除该会员, 是否继续?', '提示', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				type: 'warning',
+				center: true
+			}).then(function () {
+				axios.post('/api/user/del', { id: row.id });
+				then(function (res) {
+					_this2.$message({ type: "success", message: "删除成功" });
+				});
+			}).catch(function () {
+				_this2.$message({
+					type: 'info',
+					message: '已取消删除'
+				});
+			});
+		},
+		editAlc: function editAlc(row) {
+			this.$router.push('/user/alc/' + row.id);
 		}
+	}
 });
 
 /***/ }),
@@ -111778,6 +112718,28 @@ var render = function() {
           }),
           _vm._v(" "),
           _c("el-table-column", {
+            attrs: { label: "头像", width: "100" },
+            scopedSlots: _vm._u([
+              {
+                key: "default",
+                fn: function(scope) {
+                  return [
+                    _c("img", {
+                      staticClass: "avatar",
+                      staticStyle: { "border-radius": "22px" },
+                      attrs: {
+                        width: "40",
+                        height: "40",
+                        src: scope.row.headPic
+                      }
+                    })
+                  ]
+                }
+              }
+            ])
+          }),
+          _vm._v(" "),
+          _c("el-table-column", {
             attrs: { prop: "username", label: "用户名", width: "180" }
           }),
           _vm._v(" "),
@@ -111821,6 +112783,7 @@ var render = function() {
             attrs: {
               prop: "status",
               label: "状态",
+              width: "100",
               "filter-method": _vm.filterTag,
               "filter-placement": "bottom-end"
             },
@@ -111864,22 +112827,24 @@ var render = function() {
                           "el-col",
                           { attrs: { span: 10 } },
                           [
-                            _c(
-                              "el-button",
-                              {
-                                attrs: {
-                                  type: "danger",
-                                  size: "mini",
-                                  icon: "plus"
-                                },
-                                on: {
-                                  click: function($event) {
-                                    _vm.editAlc(scope.row)
-                                  }
-                                }
-                              },
-                              [_vm._v("编辑权限")]
-                            ),
+                            _vm.auth.alc.status == 5
+                              ? _c(
+                                  "el-button",
+                                  {
+                                    attrs: {
+                                      type: "danger",
+                                      size: "mini",
+                                      icon: "plus"
+                                    },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.editAlc(scope.row)
+                                      }
+                                    }
+                                  },
+                                  [_vm._v("编辑权限")]
+                                )
+                              : _vm._e(),
                             _vm._v(" "),
                             _c(
                               "el-button",
@@ -112011,7 +112976,7 @@ exports = module.exports = __webpack_require__(3)(undefined);
 
 
 // module
-exports.push([module.i, "\n.con .el-breadcrumb {\n  height: 40px;\n}\n", ""]);
+exports.push([module.i, "\n.con .el-breadcrumb {\n  height: 40px;\n}\n.con .avatar-uploader .el-upload {\n  border: 1px dashed #d9d9d9;\n  border-radius: 6px;\n  cursor: pointer;\n  position: relative;\n  overflow: hidden;\n}\n.con .avatar-uploader .el-upload:hover {\n  border-color: #409EFF;\n}\n.con .avatar-uploader-icon {\n  font-size: 28px;\n  color: #8c939d;\n  width: 178px;\n  height: 178px;\n  line-height: 178px;\n  text-align: center;\n}\n.con .avatar {\n  width: 178px;\n  height: 178px;\n  display: block;\n}\n.con .avatar-uploader .el-upload__input {\n  display: none;\n}\n", ""]);
 
 // exports
 
@@ -112094,10 +113059,29 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
+            imageUrl: '',
+            token: '',
             userData: [],
             dynamicValidateForm: {
                 username: '',
@@ -112109,6 +113093,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         };
     },
     created: function created() {
+        this.token = window.axios.defaults.headers.common['X-CSRF-TOKEN'];
         this.getUser();
     },
 
@@ -112154,6 +113139,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             axios.get('/api/user?status=1').then(function (res) {
                 _this2.userData = res.data.result;
             });
+        },
+        handleAvatarSuccess: function handleAvatarSuccess(res, file) {
+            this.imageUrl = URL.createObjectURL(file.raw);
+        },
+        beforeAvatarUpload: function beforeAvatarUpload(file) {
+            var isJPG = file.type === 'image/jpeg';
+            var isLt2M = file.size / 1024 / 1024 < 2;
+
+            if (!isJPG) {
+                this.$message.error('上传头像图片只能是 JPG 格式!');
+            }
+            if (!isLt2M) {
+                this.$message.error('上传头像图片大小不能超过 2MB!');
+            }
+            return isJPG && isLt2M;
         }
     }
 });
@@ -112228,6 +113228,51 @@ var render = function() {
                             attrs: { label: item.username, value: item.id }
                           })
                         })
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "el-form-item",
+            { attrs: { label: "用户头像" } },
+            [
+              _c(
+                "el-row",
+                { attrs: { gutter: 20 } },
+                [
+                  _c(
+                    "el-col",
+                    { attrs: { span: 10 } },
+                    [
+                      _c(
+                        "el-upload",
+                        {
+                          staticClass: "avatar-uploader",
+                          attrs: {
+                            action: "/api/upload",
+                            data: { _token: _vm.token },
+                            "show-file-list": false,
+                            "on-success": _vm.handleAvatarSuccess,
+                            "before-upload": _vm.beforeAvatarUpload
+                          }
+                        },
+                        [
+                          _vm.imageUrl
+                            ? _c("img", {
+                                staticClass: "avatar",
+                                attrs: { src: _vm.imageUrl }
+                              })
+                            : _c("i", {
+                                staticClass: "el-icon-plus avatar-uploader-icon"
+                              })
+                        ]
                       )
                     ],
                     1
@@ -112681,6 +113726,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     methods: {
         submitForm: function submitForm(formName) {
+            var _this = this;
+
             console.log(this.alcDataForm.alcSelectList);
             axios.post('/api/user/add/alc', {
                 user_id: this.alcDataForm.user_id,
@@ -112688,7 +113735,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 user: this.alcDataForm.user.status,
                 goods: this.alcDataForm.goods.status,
                 cateGoods: this.alcDataForm.cateGoods.status
-            }).then(function (res) {}).catch(function (erro) {});
+            }).then(function (res) {
+                _this.$message(res.data.message);
+                _this.$router.push('/user');
+            }).catch(function (erro) {});
         },
         resetForm: function resetForm(formName) {
             this.$refs[formName].resetFields();
@@ -112697,14 +113747,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             console.log(value);
         },
         getUser: function getUser() {
-            var _this = this;
+            var _this2 = this;
 
             axios.get('/api/user/alc/list?id=' + this.$route.params.id).then(function (res) {
-                _this.alcDataForm.alcList = res.data.result.order;
-                _this.alcDataForm.alcSelectList = JSON.parse(res.data.result.alc.order);
-                _this.alcDataForm.goods.status = res.data.result.alc.goods;
-                _this.alcDataForm.cateGoods.status = res.data.result.alc.cates;
-                _this.alcDataForm.user.status = res.data.result.alc.user;
+                _this2.alcDataForm.alcList = res.data.result.order;
+                _this2.alcDataForm.alcSelectList = JSON.parse(res.data.result.alc.order);
+                _this2.alcDataForm.goods.status = res.data.result.alc.goods;
+                _this2.alcDataForm.cateGoods.status = res.data.result.alc.cates;
+                _this2.alcDataForm.user.status = res.data.result.alc.user;
 
                 //this.handleAlcList();
             }).catch(function (err) {});
@@ -113230,6 +114280,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
@@ -113254,7 +114307,25 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "spread con" }, [_vm._v("\n\t数据统计\n")])
+  return _c(
+    "div",
+    { staticClass: "spread con" },
+    [
+      _c(
+        "el-breadcrumb",
+        { attrs: { "separator-class": "el-icon-arrow-right" } },
+        [
+          _c("el-breadcrumb-item", { attrs: { to: { path: "/" } } }, [
+            _vm._v("首页")
+          ]),
+          _vm._v(" "),
+          _c("el-breadcrumb-item", [_vm._v("数据统计")])
+        ],
+        1
+      )
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true

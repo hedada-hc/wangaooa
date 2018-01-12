@@ -34,6 +34,13 @@
 		      width="180">
 		    </el-table-column>
 		    <el-table-column
+		      label="头像"
+		      width="100">
+		      	<template slot-scope="scope">
+		      		<img width="40" height="40" style="border-radius: 22px;" :src="scope.row.headPic" class="avatar">
+		      	</template>
+		    </el-table-column>
+		    <el-table-column
 		      prop="username"
 		      label="用户名"
 		      width="180">
@@ -57,6 +64,7 @@
 		    <el-table-column
 		      prop="status"
 		      label="状态"
+		      width="100"
 		      :filter-method="filterTag"
 		      filter-placement="bottom-end">
 		      	<template slot-scope="scope">
@@ -65,11 +73,11 @@
 			          close-transition>{{scope.row.tag === '1' ? '未使用' : '使用中'}}</el-tag>
 		      	</template>
 		    </el-table-column>
-		    <el-table-column label="操作">
+		    <el-table-column label="操作" >
 		      	<template slot-scope="scope">
 		      		<el-row :gutter="20">
               			<el-col :span="10">
-					        <el-button type="danger" size="mini" icon="plus" @click="editAlc(scope.row)">编辑权限</el-button> 
+					        <el-button type="danger" size="mini" icon="plus" v-if="auth.alc.status == 5" @click="editAlc(scope.row)">编辑权限</el-button> 
 					        <el-button type="danger" size="mini" icon="delete" @click="remove(scope.row)">删除用户</el-button>
 			        	</el-col>
             		</el-row>
@@ -81,34 +89,16 @@
 
 <script>
   export default {
+  	props:['user'],
     data() {
       return {
 	      	user_id:'',
-	        tableData: [{
-	          date: '2016-05-02',
-	          name: '王小虎',
-	          address: '上海市普陀区金沙江路 1518 弄',
-	          tag: '家'
-	        }, {
-	          date: '2016-05-04',
-	          name: '王小虎',
-	          address: '上海市普陀区金沙江路 1517 弄',
-	          tag: '公司'
-	        }, {
-	          date: '2016-05-01',
-	          name: '王小虎',
-	          address: '上海市普陀区金沙江路 1519 弄',
-	          tag: '家'
-	        }, {
-	          date: '2016-05-03',
-	          name: '王小虎',
-	          address: '上海市普陀区金沙江路 1516 弄',
-	          tag: '公司'
-	        }],
-	        userData:[]
+	        userData:[],
+	        auth:{alc:{}}
       	}
     },
     created(){
+    	this.auth = JSON.parse(this.user);
     	this.getUser();
     },
     methods: {
@@ -136,10 +126,23 @@
 	    	this.$router.push('/user/add');
 	    },
 	    remove(row){
-	    	axios.post('/api/user/del',{id:row.id})
-	    		then(res => {
+            this.$confirm('此操作将永久删除该会员, 是否继续?', '提示', {
+		        confirmButtonText: '确定',
+		        cancelButtonText: '取消',
+		        type: 'warning',
+		        center: true
+	        }).then(() => {
+		        axios.post('/api/user/del',{id:row.id})
+	    			then(res => {
+	    				this.$message({type:"success",message:"删除成功"})
+	    			})
+	        }).catch(() => {
+		        this.$message({
+		            type: 'info',
+		            message: '已取消删除'
+		        });
+	        });
 
-	    		})
 	    },
 	    editAlc(row){
 	    	this.$router.push('/user/alc/' + row.id );

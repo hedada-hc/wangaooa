@@ -18,15 +18,11 @@
 	                <i class="el-icon-circle-check"></i>
 	                <span slot="title">新增员工</span>
 	            </el-menu-item>
-	            <el-menu-item v-if="auth.alc.status == 5" index="/user/alc">
-	                <i class="el-icon-circle-check"></i>
-	                <span slot="title">权限管理</span>
-	            </el-menu-item>
             </el-menu>
         </el-menu>
         </el-aside>
         <el-main>
-        	<router-view class="con"></router-view>
+        	<router-view :user="user" class="con"></router-view>
         </el-main>
 	</div>
 </template>

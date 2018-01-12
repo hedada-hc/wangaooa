@@ -34,6 +34,7 @@ class AlcController extends Controller
             "password" => bcrypt($res['password']),
         	"status" => $res['status'],
         	"super_id" => $res['super_id'] ? $res['super_id'] : User::where('status',">=",1)->first()->id,
+            'headPic' => '/avatars/defaultPic'.rand(1,10).'.png'
         ];
         $user = User::create($data);
         //生成alc权限记录
@@ -121,6 +122,22 @@ class AlcController extends Controller
             "status" => 200,
             "result" => $res,
             "message" => "权限更新成功"
+        ]);
+    }
+
+    /**
+     * 用户头像上传
+    **/
+    public function upload(Request $request){
+        $file = $request->file('file');
+        $filename = md5($request->user()->username.time()).'.'.$file->getClientOriginalExtension();
+        $file->move(public_path('avatars'),$filename);
+        //保存
+        User::where('id',$request->user()->id)->update(['headPic' => '/avatars/'.$filename]);
+        return response()->json([
+            "code" => 0,
+            "result" => '/avatars/'.$filename,
+            'message' => "头像上传成功"
         ]);
     }
 }

@@ -116,7 +116,8 @@ export default {
                 cateGoods:this.alcDataForm.cateGoods.status,
             })
                 .then(res => {
-
+                    this.$message(res.data.message)
+                    this.$router.push('/user')
                 })
                 .catch(erro => {
 
